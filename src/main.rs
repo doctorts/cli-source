@@ -1,4 +1,4 @@
-use std::{fs, process};
+use std::fs;
 
 use clap::Parser;
 
@@ -7,7 +7,8 @@ use commands::subcommands::{BotCommands, Cli, SubCommands};
 
 mod global;
 use global::content::{
-    file_content, FILE_EXAMPLE_CONTENT, MAIN_CONTENT, TSCONFIG_JSON, file_customize_content, package_json_content,
+    file_content, file_customize_content, package_json_content, FILE_EXAMPLE_CONTENT, MAIN_CONTENT,
+    TSCONFIG_JSON,
 };
 
 fn main() {
@@ -26,12 +27,13 @@ fn main() {
                         let create_tsconfig = format!("{}/{}.json", name, "tsconfig");
 
                         match fs::write(create_tsconfig, TSCONFIG_JSON) {
-                            Ok(_) => println!("create tsconfig.json"),
+                            Ok(_) => println!("Created tsconfig.json file"),
                             Err(_) => println!("err"),
                         }
                         let create_main = format!("{}/{}", src, main);
                         match fs::write(create_main, MAIN_CONTENT) {
                             Ok(_) => {
+                                println!("Default structure of the created project");
                                 let commands = "commands";
 
                                 let dir_commands = format!("{}/{}/", src, commands);
@@ -42,19 +44,13 @@ fn main() {
                                             Ok(_) => {
                                                 let file_example =
                                                     format!("{}{}.ts", dir_example, "ping.command");
-                                                let command_terminal =
-                                                    format!("cd {} && npm install", name);
-                                                let example = format!("cd {} && npm run dev", name);
+                                                let example = format!(
+                                                    "cd {} && npm install && npm run dev",
+                                                    name
+                                                );
                                                 match fs::write(file_example, FILE_EXAMPLE_CONTENT)
                                                 {
                                                     Ok(_) => {
-                                                        println!("{}", command_terminal);
-                                                        process::Command::new("npm")
-                                                            .arg("install")
-                                                            .current_dir(name)
-                                                            .spawn()
-                                                            .expect("Internal error");
-
                                                         println!(
                                                             "\nProject started successfully!\n\n{}",
                                                             example
@@ -95,9 +91,7 @@ fn main() {
 
                 let path = format!("src/commands/{}/customize", name);
                 match fs::create_dir_all(&path) {
-                    Ok(_) => {
-                      file_customize_content(&path, &name)
-                    }
+                    Ok(_) => file_customize_content(&path, &name),
                     Err(erro) => {
                         println!("{}", erro)
                     }
